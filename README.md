@@ -3,3 +3,4 @@
 
 ![WechatIMG874](https://github.com/WangYuSenn/PGCNet/assets/137267973/4a8d0152-ce4f-4abb-ba85-cafe9bba418d)
 
+The backbone, weights, and prediction results can be found in: 链接：
