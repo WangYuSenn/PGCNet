@@ -10,7 +10,7 @@ from backbone.P2T.p2t import p2t_tiny
 from thop import profile
 import sys
 from collections import OrderedDict
-from avs_ms3.Prompt_AVS.audio_query import AttentionGenerator
+from S4.audio_query import AttentionGenerator
 import functools
 class MLP(nn.Module):
     """ Very simple multi-layer perceptron (also called FFN)"""
