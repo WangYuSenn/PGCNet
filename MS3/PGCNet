@@ -35,8 +35,6 @@ class Classifier_Module(nn.Module):
                 nn.Conv2d(input_channel, NoLabels, kernel_size=3, stride=1, padding=padding, dilation=dilation,
                           bias=True))
         for m in self.conv2d_list:
-            # 初始化权重操作，有什么用呢？
-            # 让参数初始化为高斯分布（0,0.01）上的随机值
             m.weight.data.normal_(0, 0.01)
 
     def forward(self, x):
@@ -199,8 +197,8 @@ class BayesianLinear(torch.nn.Module):
         self.log_prior = 0.0
         self.log_variational_posterior = 0.0
     def forward(self, x):
-        weight_epsilon = torch.randn(self.out_features, self.in_features, 1, 1).to(x.device)  #生成的权重正态系数
-        bias_epsilon = torch.randn(self.out_features).to(x.device) #生成的偏置正太系数
+        weight_epsilon = torch.randn(self.out_features, self.in_features, 1, 1).to(x.device)
+        bias_epsilon = torch.randn(self.out_features).to(x.device) 
         weight_std = torch.log1p(torch.exp(self.weight_rho))
         bias_std = torch.log1p(torch.exp(self.bias_rho))
         weight = self.weight_mu + weight_std * weight_epsilon
@@ -320,7 +318,7 @@ class PGCNet(nn.Module):
         self.audio_proj = nn.Linear(128, 256)
         self.mlp = MLP(4, 512, 256, 2)
         self.output_conv = nn.Sequential(
-            # 最后的卷积输出 256 ->128 -> 32 -> 1
+            #  256 ->128 -> 32 -> 1
             nn.Conv2d(channel, 128, kernel_size=3, stride=1, padding=1),
             Interpolate(scale_factor=2, mode="bilinear"),
             nn.Conv2d(128, 32, kernel_size=3, stride=1, padding=1),
@@ -328,7 +326,7 @@ class PGCNet(nn.Module):
             nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0),
         )
         self.auxoutput_conv = nn.Sequential(
-            # 最后的卷积输出 256 ->128 -> 32 -> 1
+            #  256 ->128 -> 32 -> 1
             nn.Conv2d(channel, 128, kernel_size=3, stride=1, padding=1),
             Interpolate(scale_factor=2, mode="bilinear"),
             nn.Conv2d(128, 32, kernel_size=3, stride=1, padding=1),
