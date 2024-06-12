@@ -35,8 +35,6 @@ class Classifier_Module(nn.Module):
                 nn.Conv2d(input_channel, NoLabels, kernel_size=3, stride=1, padding=padding, dilation=dilation,
                           bias=True))
         for m in self.conv2d_list:
-            # 初始化权重操作，有什么用呢？
-            # 让参数初始化为高斯分布（0,0.01）上的随机值
             m.weight.data.normal_(0, 0.01)
 
     def forward(self, x):
@@ -66,13 +64,10 @@ class ResidualConvUnit(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        """Forward pass.
         Args:
             x (tensor): input
         Returns:
             tensor: output
-        """
-        # 这个地方采用的是两个3x3的卷积，跟使用一个5x5的卷积一个效果
         out = self.relu(x)
         out = self.conv1(out)
         out = self.relu(out)
@@ -80,9 +75,6 @@ class ResidualConvUnit(nn.Module):
 
         return out + x
 class FeatureFusionBlock(nn.Module):
-    """Feature fusion block.
-    """
-
     def __init__(self, features):
         """Init.
         Args:
@@ -130,12 +122,10 @@ class AUXFeatureFusionBlock(nn.Module):
             tensor: output
         """
         output = xs[0]
-        # print('output', output.shape)
         if len(xs) == 2:
             output += self.resConfUnit1(xs[1])
 
         output = self.resConfUnit2(output)
-        # print('output', output.shape)
         output = nn.functional.interpolate(
             output, scale_factor=2, mode="bilinear", align_corners=True
         )
@@ -199,8 +189,8 @@ class BayesianLinear(torch.nn.Module):
         self.log_prior = 0.0
         self.log_variational_posterior = 0.0
     def forward(self, x):
-        weight_epsilon = torch.randn(self.out_features, self.in_features, 1, 1).to(x.device)  #生成的权重正态系数
-        bias_epsilon = torch.randn(self.out_features).to(x.device) #生成的偏置正太系数
+        weight_epsilon = torch.randn(self.out_features, self.in_features, 1, 1).to(x.device) 
+        bias_epsilon = torch.randn(self.out_features).to(x.device) 
         weight_std = torch.log1p(torch.exp(self.weight_rho))
         bias_std = torch.log1p(torch.exp(self.bias_rho))
         weight = self.weight_mu + weight_std * weight_epsilon
@@ -320,7 +310,7 @@ class PGCNet(nn.Module):
         self.audio_proj = nn.Linear(128, 256)
         self.mlp = MLP(4, 512, 256, 2)
         self.output_conv = nn.Sequential(
-            # 最后的卷积输出 256 ->128 -> 32 -> 1
+            #  256 ->128 -> 32 -> 1
             nn.Conv2d(channel, 128, kernel_size=3, stride=1, padding=1),
             Interpolate(scale_factor=2, mode="bilinear"),
             nn.Conv2d(128, 32, kernel_size=3, stride=1, padding=1),
@@ -328,7 +318,7 @@ class PGCNet(nn.Module):
             nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0),
         )
         self.auxoutput_conv = nn.Sequential(
-            # 最后的卷积输出 256 ->128 -> 32 -> 1
+            #  256 ->128 -> 32 -> 1
             nn.Conv2d(channel, 128, kernel_size=3, stride=1, padding=1),
             Interpolate(scale_factor=2, mode="bilinear"),
             nn.Conv2d(128, 32, kernel_size=3, stride=1, padding=1),
